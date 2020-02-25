@@ -29,7 +29,7 @@ public static Boolean valueOf(boolean b) {
 
 개발자가 특정 클래스를 생성시에 생성자 내부의 소스코드나 클래스의 맴버변수를 직접 확인해야 해당 생성자가 가지는 의미를 이해할 수 있습니다.
 
-> 책에서 설명하는 BigInteger.probablePrime과 Spring의 ResponseEntity 에서 ok 메소드
+> 책에서 설명하는 BigInteger.probablePrime와 Spring의 ResponseEntity 에서 ok 메소드
 
 ```java
 public static BigInteger probablePrime(int bitLength, Random rnd) {
@@ -48,7 +48,7 @@ public static <T> ResponseEntity<T> ok(T body) {
 
 아래 클래스는 String type의 code와 message를 멤버변수로 가지고 있는 Response객체로 ErrorCode 과 Stirng 타입의 생성자를 각각 가지고 있습니다.
 
-여기서 error, validationError, success 이름을 가지는 정정 팩터리 메서드들은 메소드명으로 의도를 파악할 수 있습니다.
+여기서 error, validationError, success 이름을 가지는 정정 팩터리 메서드들은 이름으로 의도를 파악할 수 있습니다.
 
 ```java
 public class Response {
@@ -94,3 +94,44 @@ public class Response {
     }
 }
 ```
+
+## 호출될 때마다 인스턴스를 새로 생성하지는 않아도 된다
+
+불변 클래스는 인스턴스를 미리 만들어 놓거나, 캐싱하여 재활용하는 식으로 불필요한 객체 생성을 피할 수 있다.
+
+```java
+// Integer.java
+
+public static Integer valueOf(int i) {
+    if (i >= IntegerCache.low && i <= IntegerCache.high)
+        return IntegerCache.cache[i + (-IntegerCache.low)];
+    return new Integer(i);
+}
+```
+
+```java
+// Boolean.java
+
+public static final Boolean TRUE = new Boolean(true);
+
+public static final Boolean FALSE = new Boolean(false);
+
+...
+
+public static Boolean valueOf(boolean b) {
+    return (b ? TRUE : FALSE);
+}
+```
+
+* 같은 객체가 자주 사용되는 상황이라면 성능을 상당히 끌어올려 준다.
+* 반복되는 요청에 같은 객체를 반환하는 식으로 정적 팩터리 방식의 클래스는 언제 어느 인스턴스를 살아 있게 할지를 철저히 통제할 수 있다.
+  * 인스턴스 통제 클래스라고 함.
+  * 싱글턴으로 객체를 생성 가능.
+  * 인스턴스화 불가 클래스로 생성 가능.
+    * 생성자가 protected, privete 으로 외부에 공개되지 않는다.
+  * 불변값 클래스에서 동치인 인스터스가 단 하나뿐임을 보장가능.
+
+## 반환 타입의 하위 타입 객체를 반활할 수 있는 능력이 있다
+
+객체의 클래스를 자유롭게 선택할 수 있게 하는 엄청난 유연성을 선물한다.
+
