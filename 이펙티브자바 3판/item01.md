@@ -25,9 +25,13 @@ public static Boolean valueOf(boolean b) {
 4. 입력 매개변수에 따라 매번 다른 클래스의 객체를 반환할 수 있다.
 5. 정적 팩터리 메서드를 작성하는 시점에는 반환할 객체의 클래스가 존재하지 않아도 된다.
 
+위의 장점을 SOLID 관점에서 본다면, ``단일 책임 원칙(SRP) , 개방 폐쇠 원칙 (OCP), 리스코프 치환 원칙 (LSP), 의존관계 역전 원칙(DIP)`` 가 적절히 혼합된 방식이라고 생각합니다.
+
 ## 이름을 가질 수 있다
 
 개발자가 특정 클래스를 생성시에 생성자 내부의 소스코드나 클래스의 맴버변수를 직접 확인해야 해당 생성자가 가지는 의미를 이해할 수 있습니다.
+
+* 하나의 메소드는 ``이름에 근거한 하나의 책임을 가지며 이를 단일책임원칙(OCP)``으로 볼 수 있다고 생각합니다.
 
 > 책에서 설명하는 BigInteger.probablePrime와 Spring의 ResponseEntity 에서 ok 메소드
 
@@ -135,3 +139,23 @@ public static Boolean valueOf(boolean b) {
 
 객체의 클래스를 자유롭게 선택할 수 있게 하는 엄청난 유연성을 선물한다.
 
+* java.util.Collections를 통하여 Collection 프레임워크 기능들을 핸들링 가능하다.
+* 클라이언트는 인터페이스만으로 객체를 다루게 된다.
+  * 클라이언트는 실제 구현체의 정보를 알 수 없기 때문에 구현체가 변경되어도 실제 인터페이스를 활용하는 로직은 변경되지 않는다. 이때 ``리스코프 치환 법칙(LSP)``에 성립된다고 볼 수 있다고 생각합니다.
+
+> collections의 unmodifiableList 메소드를 통하여 수정이 불가능한 list 생성 기능 및 여러 기능들을 제공함.
+
+```java
+public static <T> List<T> unmodifiableList(List<? extends T> list) {
+    return (list instanceof RandomAccess ?
+            new UnmodifiableRandomAccessList<>(list) :
+            new UnmodifiableList<>(list));
+}
+```
+
+## 입력 매개변수에 따라 매번 다른 클래스의 객체를 반환할 수 있다
+
+* [팩토리 메서드 패턴](https://ko.wikipedia.org/wiki/%ED%8C%A9%ED%86%A0%EB%A6%AC_%EB%A9%94%EC%84%9C%EB%93%9C_%ED%8C%A8%ED%84%B4)으로 생각해도 되지 않을까?? 생각함.
+* 클라이언트는 인터페이스만을 활용하며 실제 구현체 정보는 알 수 없다.
+  * 특정 파라미터에 맞는 구현체를 변경하여도 클라이언트는 그 정보를 몰라도 상관없다.
+* 실제 객체의 생성을 정적 팩터리 메서드가 관리하므로 의존관계 역전 원칙 (DIP)이 성립된다고 생각합니다.
