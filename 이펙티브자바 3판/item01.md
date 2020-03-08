@@ -159,3 +159,68 @@ public static <T> List<T> unmodifiableList(List<? extends T> list) {
 * 클라이언트는 인터페이스만을 활용하며 실제 구현체 정보는 알 수 없다.
   * 특정 파라미터에 맞는 구현체를 변경하여도 클라이언트는 그 정보를 몰라도 상관없다.
 * 실제 객체의 생성을 정적 팩터리 메서드가 관리하므로 의존관계 역전 원칙 (DIP)이 성립된다고 생각합니다.
+
+## 정적 팩터리 메서드를 작성하는 시점에는 반환할 객체의 클래스가 존재하지 않아도 된다
+
+* 서비스 제공자 프레임워크를 만드는 근간이 된다.
+  * 대표적으로는 JDBC가 존재함.
+
+# 단점
+
+단점으로는 아래 두가지가 존재합니다.
+
+1. 상속을 하려면 public이나 protected 생성자가 필요하니 정적 팩터리 메서드만 제공하면 하위 클래스를 만들 수 없다.
+
+2. 정적 팩터리 메서드는 프로그래머가 찾기 어렵다.
+
+## 상속을 하려면 public이나 proected 생성자가 필요하니 정적 팩터리 메서드만 제공하면 하위 클래스를 만들 수 없다
+
+* 컬렉션 프레임워크의 유틸리티 구현 클래스들을 상속할 수 없다는 이야기로, 상속보다는 컴포지션을 사용하도록 유도하고 불변타입으로 만들려면 이 제약을 지켜야 한다는 점에서 장점으로 받아들일 수도 있다.
+
+## 정적 팩터리 메서드는 프로그래머가 찾기 어렵다
+
+* 메서드 이름을 널리 알려진 규약을 따라 짓는 식으로 문제를 완화해줘야 한다.
+
+### 메서드 이름 규약
+
+* from : 매개변수를 하나 받아서 해당 타입의 인스턴스를 반환하는 형변환 메서드
+
+```java
+Date d = Date.from(instant);
+```
+
+* of : 여러 매개변수를 받아 적합한 타입의 인스턴스를 반환하는 집계 메서드
+
+```java
+Set<Rank> faceCards = EnumSet.of(JACK, QUEEN, KING);
+```
+
+* valueOf : from과 of의 더 자세한 버전
+
+```java
+BigInteger prime = BigInteger.valueOf(Integer.MAX_VALUE);
+```
+
+* instance 혹은 getInstance : 매개변수로 명시한 인스턴스를 반환하지만, 같은 인스턴스임을 보장하지는 않는다.
+
+```java
+StackWalker luke = StackWalker.getInstance(options);
+```
+
+* create 혹은 newInstance : instance 혹은 getInstance와 같지만, 매번 새로운 인스턴스를 생성해 반환함을 보장한다.
+
+```java
+Object newArray = Array.newInstance(classObject, arrayLen);
+```
+
+* getType : getInstance와 같으나, 생성할 클래스가 아닌 다른 클래스에 팩터리 메서드를 정의할 때 쓴다. "Type"은 팩터리 메서드가 반환할 객체 타입이다.
+
+```java
+BufferedReader br = Files.newBufferedReader(path);
+```
+
+* type : getType과 newType의 간결한 버전
+
+```java
+List<Complaint> litany = Collections.list(legacyLitany);
+```
